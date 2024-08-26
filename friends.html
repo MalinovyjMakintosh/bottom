@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ваш Профиль</title>
+    <link rel="stylesheet" href="friends.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Ваш Профиль</h1>
+        <div class="referral-container">
+            <p>Ваша реферальная ссылка:</p>
+            <input type="text" id="referral-link" readonly>
+            <button id="generate-referral-btn">Сгенерировать реферальную ссылку</button>
+            <button id="copy-btn">Копировать ссылку</button>
+        </div>
+    </div>
+    <script>
+        // Обработчик для генерации реферальной ссылки
+        document.getElementById('generate-referral-btn').addEventListener('click', async function() {
+            const username = prompt('Введите ваше имя пользователя:');
+            if (!username) return;
+
+            try {
+                const response = await fetch('http://localhost:3000/generate-referral', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('referral-link').value = data.referralLink;
+                } else {
+                    alert(data.error || 'Не удалось сгенерировать ссылку');
+                }
+            } catch (error) {
+                alert('Ошибка при генерации ссылки');
+                console.error(error);
+            }
+        });
+
+        // Обработчик для копирования ссылки
+        document.getElementById('copy-btn').addEventListener('click', function() {
+            const referralLink = document.getElementById('referral-link');
+            referralLink.select();
+            referralLink.setSelectionRange(0, 99999); // Для мобильных устройств
+
+            try {
+                const successful = document.execCommand('copy');
+                const msg = successful ? 'Ссылка скопирована!' : 'Не удалось скопировать ссылку';
+                alert(msg);
+            } catch (err) {
+                alert('Ошибка при копировании ссылки');
+            }
+        });
+    </script>
+</body>
+</html>
