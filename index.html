@@ -21,9 +21,49 @@
     <div class="navbar">
         <a href="home.html">Home</a>
         <a href="tasks.html">Tasks</a>
-        <a href="friends.html">Friends</a> <!-- Добавляем ссылку на страницу Friends -->
+        <a href="friends.html">Friends</a>
     </div>
     
-    <script src="script.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tg = window.Telegram.WebApp;
+            const userId = tg.initDataUnsafe.user?.id; // Получаем ID пользователя
+            if (!userId) {
+                console.error("User ID not found");
+                return;
+            }
+
+            let counter = parseInt(localStorage.getItem('appleCount')) || 0;
+            const counterValue = document.getElementById('counter-value');
+            const incrementBtn = document.getElementById('increment-btn');
+
+            // Обновляем отображение счетчика
+            counterValue.innerHTML = `Apples: ${counter}`;
+
+            // При нажатии на кнопку увеличиваем счетчик и отправляем данные на сервер
+            incrementBtn.addEventListener('click', () => {
+                counter++;
+                localStorage.setItem('appleCount', counter); // Сохраняем количество в localStorage
+                counterValue.innerHTML = `Apples: ${counter}`;
+
+                // Отправляем данные на сервер
+                fetch('https://were-xgze.onrender.com/update-apples', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId, appleCount: counter })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
